@@ -1,4 +1,4 @@
-# API-автотесты для [Reqres](https://reqres.in/)
+# Проект по автоматизации тестирования API для веб-приложения [Reqres](https://reqres.in/)
 
 ## <img width="4%" title="Functional" src="images/functional.png"> Покрытый функционал
 
