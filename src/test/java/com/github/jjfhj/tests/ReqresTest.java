@@ -1,30 +1,25 @@
-package com.github.jjfhj;
+package com.github.jjfhj.tests;
 
-import io.restassured.RestAssured;
-import org.junit.jupiter.api.BeforeAll;
+import com.github.jjfhj.models.SingleUserData;
 import org.junit.jupiter.api.Test;
 
-import static io.restassured.RestAssured.get;
+import static com.github.jjfhj.specs.Specs.request;
+import static com.github.jjfhj.specs.Specs.responseSpec;
 import static io.restassured.RestAssured.given;
-import static io.restassured.http.ContentType.JSON;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 public class ReqresTest {
 
-    @BeforeAll
-    static void setUp() {
-        RestAssured.baseURI = "https://reqres.in/";
-    }
-
     @Test
-    void getListUser() {
+    void getListUsers() {
         given()
+                .spec(request)
                 .when()
-                .get("api/users?page=1")
-                .then().log().all()
-                .statusCode(200)
+                .get("/users?page=1")
+                .then()
+                .spec(responseSpec)
                 .body("page", is(1),
                         "data[0].id", is(1),
                         "data[5].avatar", notNullValue(),
@@ -35,11 +30,28 @@ public class ReqresTest {
     @Test
     void getSingleUser() {
         String response =
-                get("api/users/2")
-                        .then().log().all()
+                given()
+                        .spec(request)
+                        .when()
+                        .get("/users/2")
+                        .then()
+                        .spec(responseSpec)
                         .extract().path("data.email");
 
         assertThat(response).isEqualTo("janet.weaver@reqres.in");
+    }
+
+    @Test
+    void getSingleUserWithModel() {
+        SingleUserData data = given()
+                .spec(request)
+                .when()
+                .get("/users/2")
+                .then()
+                .spec(responseSpec)
+                .extract().as(SingleUserData.class);
+
+        assertThat(data.getData().getEmail()).isEqualTo("janet.weaver@reqres.in");
     }
 
     @Test
@@ -48,10 +60,10 @@ public class ReqresTest {
         String data = "{ \"name\": \"Matthew Frank\", \"job\": \"Analyst\" }";
 
         given()
-                .contentType(JSON)
+                .spec(request)
                 .body(data)
                 .when()
-                .post("api/users")
+                .post("/users")
                 .then().log().all()
                 .statusCode(201)
                 .body("name", is("Matthew Frank"),
@@ -66,12 +78,12 @@ public class ReqresTest {
         String data = "{ \"name\": \"Matthew Frank\", \"job\": \"Business Analyst\" }";
 
         given()
-                .contentType(JSON)
+                .spec(request)
                 .body(data)
                 .when()
-                .put("api/users/2")
-                .then().log().all()
-                .statusCode(200)
+                .put("/users/2")
+                .then()
+                .spec(responseSpec)
                 .body("name", is("Matthew Frank"),
                         "job", is("Business Analyst"),
                         "updatedAt", notNullValue());
@@ -83,12 +95,12 @@ public class ReqresTest {
         String data = "{ \"name\": \"Matthew Moore\", \"job\": \"Business Analyst\" }";
 
         given()
-                .contentType(JSON)
+                .spec(request)
                 .body(data)
                 .when()
-                .patch("api/users/2")
-                .then().log().all()
-                .statusCode(200)
+                .patch("/users/2")
+                .then()
+                .spec(responseSpec)
                 .body("name", is("Matthew Moore"),
                         "job", is("Business Analyst"),
                         "updatedAt", notNullValue());
@@ -97,8 +109,9 @@ public class ReqresTest {
     @Test
     void deleteUser() {
         given()
+                .spec(request)
                 .when()
-                .delete("api/users/2")
+                .delete("/users/2")
                 .then().log().all()
                 .statusCode(204);
     }
