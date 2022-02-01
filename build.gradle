@@ -10,6 +10,7 @@ repositories {
 def junitVersion = "5.8.2"
 
 dependencies {
+    //noinspection GradlePackageUpdate
     testImplementation(
             "io.rest-assured:rest-assured:4.4.0",
             "org.assertj:assertj-core:3.21.0",
